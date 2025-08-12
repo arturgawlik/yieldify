@@ -1,6 +1,6 @@
 {
   "name": "yieldify-yield",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "It is like node's promisfy util function, but for yield.",
   "repository": {
     "type": "git",
