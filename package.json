@@ -1,5 +1,5 @@
 {
-  "name": "yieldify",
+  "name": "yieldify-yield",
   "version": "0.0.1",
   "description": "It is like node's promisfy util function, but for yield.",
   "repository": {
@@ -20,10 +20,10 @@
     "url": "https://github.com/arturgawlik/yeildify"
   },
   "homepage": "https://github.com/arturgawlik/yeildify",
-  "main": "dist/blaze.js",
+  "main": "dist/yieldify.js",
   "files": [
     "dist",
-    "yeildify.ts",
+    "yieldify.ts",
     "README.md"
   ],
   "type": "module",
