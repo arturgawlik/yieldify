@@ -17,6 +17,6 @@ import { readFile } from "node:fs";
 yieldifiedEnv(function* () {
   const readFileYieldified = yieldify(readFile);
   const file = yield readFileYieldified(import.meta.filename, "utf8");
-  console.log(filed);
+  console.log(file);
 });
 ```
