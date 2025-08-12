@@ -1,0 +1,44 @@
+{
+  "name": "yieldify",
+  "version": "0.0.1",
+  "description": "It is like node's promisfy util function, but for yield.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arturgawlik/yieldify.git"
+  },
+  "keywords": [
+    "yield",
+    "iterators",
+    "generators",
+    "async",
+    "promisfy",
+    "yeildify"
+  ],
+  "author": "Artur Gawlik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arturgawlik/yeildify"
+  },
+  "homepage": "https://github.com/arturgawlik/yeildify",
+  "main": "dist/blaze.js",
+  "files": [
+    "dist",
+    "yeildify.ts",
+    "README.md"
+  ],
+  "type": "module",
+  "scripts": {
+    "test": "tap",
+    "rollup": "rollup -c rollup.config.js",
+    "tsc": "tsc",
+    "prepare": "npm run tsc && npm run rollup"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@types/node": "^24.2.1",
+    "rollup": "^4.46.2",
+    "tap": "^21.1.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2"
+  }
+}
