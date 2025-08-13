@@ -29,7 +29,7 @@
   "type": "module",
   "scripts": {
     "test": "tap",
-    "rollup": "rollup -c rollup.config.js",
+    "rollup": "rollup -c rollup.config.ts --configPlugin typescript",
     "tsc": "tsc",
     "prepare": "npm run tsc && npm run rollup"
   },
