@@ -40,3 +40,46 @@ t.test("should allow multiple 'yieldifiedEnv's at the same time", (t) => {
     end();
   });
 });
+
+t.test(
+  "should throw error when 'yeildify' is called without 'yieldifiedEnv'",
+  (t) => {
+    process.once("uncaughtException", (err) => {
+      if (err instanceof Error) {
+        t.match(
+          err.message,
+          /`yieldify` must be used in context of generator function that is passed to `yieldifiedEnv`./,
+          "should have appropriate error message."
+        );
+      } else {
+        t.fail("should throw error that is instanceof 'Error'.");
+      }
+      t.end();
+    });
+    const readFileYieldified = yieldify(readFile);
+    readFileYieldified(testFileOnePath, "utf8");
+  }
+);
+
+t.test("should pass errors from callback ", (t) => {
+  yieldifiedEnv(function* () {
+    const readFileYieldified = yieldify(readFile);
+    try {
+      const file = yield readFileYieldified(
+        "/some/non/existing/file.txt",
+        "utf8"
+      );
+    } catch (err) {
+      if (err instanceof Error) {
+        t.match(
+          err.message,
+          /no such file or directory/,
+          "should have appropriate error message."
+        );
+      } else {
+        t.fail("should throw error that is instanceof 'Error'.");
+      }
+    }
+    t.end();
+  });
+});
