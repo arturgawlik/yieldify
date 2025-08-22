@@ -3,7 +3,10 @@ const iteratorsStorage = new AsyncLocalStorage<Iterator<unknown>>();
 export function yieldifiedEnv(topLevelGenerator: () => Generator) {
   const iterator = topLevelGenerator();
   iteratorsStorage.run(iterator, () => {
-    iterator.next();
+    const { value } = iterator.next();
+    if (value instanceof Promise) {
+      value.then((v) => iterator.next(v)).catch((e) => iterator.throw(e));
+    }
   });
 }
 // TODO: improve TS of this

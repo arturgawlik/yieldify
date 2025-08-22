@@ -1,5 +1,6 @@
 import t from "tap";
-import { readFile, readdir } from "node:fs";
+import { readFile } from "node:fs";
+import fsPromise from "node:fs/promises";
 import { yieldifiedEnv, yieldify } from "../yieldify.ts";
 
 const testFileOnePath = import.meta
@@ -61,16 +62,43 @@ t.test(
   }
 );
 
-t.test("should pass errors from callback ", (t) => {
+t.test("should pass errors from callback", (t) => {
   yieldifiedEnv(function* () {
     const readFileYieldified = yieldify(readFile);
     try {
-      const file = yield readFileYieldified(
+      yield readFileYieldified(
         "/some/non/existing/file.txt",
         "utf8"
       );
     } catch (err) {
       if (err instanceof Error) {
+        t.match(
+          err.message,
+          /no such file or directory/,
+          "should have appropriate error message."
+        );
+      } else {
+        t.fail("should throw error that is instanceof 'Error'.");
+      }
+    }
+    t.end();
+  });
+});
+
+t.test("should work with Promise resolve", (t) => {
+  yieldifiedEnv(function* () {
+    const file = yield fsPromise.readFile(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file), `wrong file content: "${file}"`);
+    t.end();
+  });
+});
+
+t.test("should work with Promise reject", (t) => {
+  yieldifiedEnv(function* () {
+    try {
+      yield fsPromise.readFile("/some/non/existing/file.txt", "utf8");
+    } catch (err) {
+    if (err instanceof Error) {
         t.match(
           err.message,
           /no such file or directory/,
