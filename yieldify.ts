@@ -1,39 +1,40 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-const iteratorsStorage = new AsyncLocalStorage<Iterator<unknown>>();
+const generatorsStorage = new AsyncLocalStorage<Generator<unknown, any, any>>();
 export function yieldifiedEnv(topLevelGenerator: () => Generator) {
-  const iterator = topLevelGenerator();
-  iteratorsStorage.run(iterator, () => {
-    const { value } = iterator.next();
-    if (value instanceof Promise) {
-      consumePromise(value,  iterator);
-    }
+  const generator = topLevelGenerator();
+  generatorsStorage.run(generator, () => {
+    const { value } = generator.next();
+    consumePromise(value, generator);
   });
 }
 
-function consumePromise(value: Promise<any>, iterator: Generator<unknown, any, any>) {
-  value.then((v) => {
-    const { value: newValue } = iterator.next(v);
-    if (newValue instanceof Promise) {
-      consumePromise(newValue, iterator);
-    }
-  }).catch((e) => iterator.throw(e));
+function consumePromise(value: unknown, generator: Generator<unknown, any, any>) {
+  if (value instanceof Promise) {
+    value.then((v) => {
+      const { value: newValue } = generator.next(v);
+      if (newValue instanceof Promise) {
+        consumePromise(newValue, generator);
+      }
+    }).catch((e) => generator.throw(e));
+  }
 }
 
 // TODO: improve TS of this
 export function yieldify(fn: (...args: any) => any) {
   return (...args: any): any => {
     fn(...args, (err: unknown, res: unknown): any => {
-      const iterator = iteratorsStorage.getStore();
-      if (assertIterator(iterator)) {
+      const generator = generatorsStorage.getStore();
+      if (assertGenerator(generator)) {
         // @ts-ignore FIXME
-        if (err) iterator.throw(err);
-        iterator.next(res);
+        if (err) generator.throw(err);
+        const { value } = generator.next(res);
+        consumePromise(value, generator);
       }
     });
   };
 }
 
-function assertIterator(iter: unknown): iter is Iterator<unknown> {
+function assertGenerator(iter: unknown): iter is Generator<unknown, any, any> {
   if (!iter) {
     throw new Error(
       "`yieldify` must be used in context of generator function that is passed to `yieldifiedEnv`."

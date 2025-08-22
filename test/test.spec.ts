@@ -105,6 +105,17 @@ t.test("should work with Promise resolve", (t) => {
   });
 });
 
+t.test("should work with Promise resolve", (t) => {
+  yieldifiedEnv(function* () {
+    const readFileYieldified = yieldify(readFile);
+    const file1 = yield readFileYieldified(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file1), `first yield not finished`);
+    const file2 = yield fsPromise.readFile(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file2), `second yield not finished`);
+    t.end();
+  });
+});
+
 t.test("should work with Promise reject", (t) => {
   yieldifiedEnv(function* () {
     try {
