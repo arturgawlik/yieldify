@@ -42,8 +42,18 @@ t.test("should allow multiple 'yieldifiedEnv's at the same time", (t) => {
   });
 });
 
-t.test(
-  "should throw error when 'yeildify' is called without 'yieldifiedEnv'",
+t.test("should allow multiple yields", (t) => {
+  yieldifiedEnv(function* () {
+    const readFileYieldified = yieldify(readFile);
+    const file1 = yield readFileYieldified(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file1), `first yield not finished`);
+    const file2 = yield readFileYieldified(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file2), `second yield not finished`);
+    t.end();
+  });
+});
+
+t.test("should throw error when 'yieldify' is called without 'yieldifiedEnv'",
   (t) => {
     process.once("uncaughtException", (err) => {
       if (err instanceof Error) {
@@ -87,8 +97,10 @@ t.test("should pass errors from callback", (t) => {
 
 t.test("should work with Promise resolve", (t) => {
   yieldifiedEnv(function* () {
-    const file = yield fsPromise.readFile(testFileOnePath, "utf8");
-    t.ok(/test-file-one/.test(file), `wrong file content: "${file}"`);
+    const file1 = yield fsPromise.readFile(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file1), `first yield not finished`);
+    const file2 = yield fsPromise.readFile(testFileOnePath, "utf8");
+    t.ok(/test-file-one/.test(file2), `second yield not finished`);
     t.end();
   });
 });

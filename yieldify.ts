@@ -5,10 +5,20 @@ export function yieldifiedEnv(topLevelGenerator: () => Generator) {
   iteratorsStorage.run(iterator, () => {
     const { value } = iterator.next();
     if (value instanceof Promise) {
-      value.then((v) => iterator.next(v)).catch((e) => iterator.throw(e));
+      consumePromise(value,  iterator);
     }
   });
 }
+
+function consumePromise(value: Promise<any>, iterator: Generator<unknown, any, any>) {
+  value.then((v) => {
+    const { value: newValue } = iterator.next(v);
+    if (newValue instanceof Promise) {
+      consumePromise(newValue, iterator);
+    }
+  }).catch((e) => iterator.throw(e));
+}
+
 // TODO: improve TS of this
 export function yieldify(fn: (...args: any) => any) {
   return (...args: any): any => {
